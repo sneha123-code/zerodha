@@ -67,19 +67,19 @@ const login = async (req, res) => {
 
     // Generate JWT
     const token = jwt.sign(
-      {
-        userId: user._id,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1d",
-      }
-    );
+        { userId: user._id },
+        process.env.JWT_SECRET,
+        { expiresIn: "1d" }
+        );
 
-    res.json({
-      message: "Login successful",
-      token,
-    });
+        res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 24 * 60 * 60 * 1000,
+        });
+
+        res.json({ message: "Login successful" });
 
   } catch (error) {
     res.status(500).json({
@@ -87,9 +87,42 @@ const login = async (req, res) => {
     });
   }
 };
+const getMe = async (req, res) => {
+  try {
+    const user = await UserModel.findById(req.userId).select(
+      "-password"
+    );
 
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.json({
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+const logout = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  });
+
+  res.json({
+    message: "Logout successful",
+  });
+};
 
 module.exports = {
   signup,
   login,
+  getMe,
+  logout,
 };
