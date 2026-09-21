@@ -1,20 +1,15 @@
-
-
-
-
 const dns = require("dns");
 dns.setServers(["8.8.8.8", "8.8.4.4"]);
-
 
 require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 const { HoldingsModel } = require("./model/HoldingsModel");
-
 const { PositionsModel } = require("./model/PositionsModel");
 const { OrdersModel } = require("./model/OrdersModel");
 const authRoutes = require("./routes/auth");
@@ -24,8 +19,19 @@ const uri = process.env.MONGO_URL;
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://zerodha-frontend-roan.vercel.app",
+      "https://zerodha-five-mu.vercel.app",
+    ],
+    credentials: true,
+  })
+);
+
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use("/auth", authRoutes);
 
 // app.get("/addHoldings", async (req, res) => {
@@ -215,7 +221,7 @@ app.post("/newOrder", async (req, res) => {
     mode: req.body.mode,
   });
 
-  newOrder.save();
+  await newOrder.save();
 
   res.send("Order saved!");
 });
