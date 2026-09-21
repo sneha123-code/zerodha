@@ -11,6 +11,6 @@ describe("Hero Component", () => {
     const heroImage = screen.getByAltText("Hero Image");
 
     expect(heroImage).toBeInTheDocument();
-    expect(heroImage.getAttribute("src")).toContain("media/images/homeHero");
+    expect(heroImage.getAttribute("src")).toContain("/media/homeHero");
   });
 });
